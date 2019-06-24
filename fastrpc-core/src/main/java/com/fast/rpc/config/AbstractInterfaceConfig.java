@@ -1,8 +1,14 @@
 package com.fast.rpc.config;
 
 
-import java.util.Collections;
-import java.util.List;
+import com.fast.rpc.common.Constants;
+import com.fast.rpc.common.URL;
+import com.fast.rpc.common.URLParam;
+import com.fast.rpc.registry.Registry;
+import com.fast.rpc.util.NetUtils;
+import com.fast.rpc.util.StringUtils;
+
+import java.util.*;
 
 /**
  * @ClassName AbstractInterfaceConfig
@@ -28,6 +34,50 @@ public class AbstractInterfaceConfig {
 
     // 是否进行check，如果为true，则在监测失败后抛异常
     protected Boolean check = Boolean.TRUE;
+
+
+    protected List<URL> loadRegistryUrls() {
+        List<URL> registryList = new ArrayList<URL>();
+
+        if (registries != null && !registries.isEmpty()) {
+            for (RegistryConfig config : registries) {
+                String address = config.getAddress();
+                String protocol = config.getProtocol();
+
+                if (StringUtils.isBlank(address)) {
+                    address = NetUtils.LOCALHOST + Constants.HOST_PORT_SEPARATOR + Constants.DEFAULT_INT_VALUE;
+                    protocol = Constants.REGISTRY_PROTOCOL_LOCAL;
+                }
+
+                Map<String, String> parameters = new HashMap<>();
+                parameters.put(URLParam.path.getName(), Registry.class.getName());
+                parameters.put(URLParam.registryAddress.getName(), String.valueOf(address));
+                parameters.put(URLParam.registryProtocol.getName(), String.valueOf(protocol));
+                parameters.put(URLParam.timestamp.getName(), String.valueOf(System.currentTimeMillis()));
+                parameters.put(URLParam.protocol.getName(), protocol);
+
+                Integer connectTimeout = URLParam.registryConnectTimeout.getIntValue();
+                if (config.getConnectTimeout() != null) {
+                    connectTimeout = config.getConnectTimeout();
+                }
+                parameters.put(URLParam.registryConnectTimeout.getName(), String.valueOf(connectTimeout));
+
+                Integer sessionTimeout = URLParam.registrySessionTimeout.getIntValue();
+                if (config.getSessionTimeout() != null) {
+                    sessionTimeout = config.getSessionTimeout();
+                }
+                parameters.put(URLParam.registrySessionTimeout.getName(), String.valueOf(sessionTimeout));
+
+                String[] arr = address.split(Constants.HOST_PORT_SEPARATOR);
+                URL url = new URL(protocol, arr[0], Integer.parseInt(arr[1]), Registry.class.getName(), parameters);
+                registryList.add(url);
+            }
+        }
+
+
+        return registryList;
+    }
+
 
     public String getInterfaceName() {
         return interfaceName;
@@ -100,4 +150,6 @@ public class AbstractInterfaceConfig {
     public void setRegistry(RegistryConfig registry) {
         this.registries = Collections.singletonList(registry);
     }
+
+
 }

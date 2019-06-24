@@ -68,7 +68,7 @@ public class RegistryConfig extends AbstractConfig {
         this.connectTimeout = connectTimeout;
     }
 
-    public Boolean getDefault() {
+    public Boolean isDefault() {
         return isDefault;
     }
 

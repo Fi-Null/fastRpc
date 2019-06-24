@@ -123,7 +123,7 @@ public class ProtocolConfig extends AbstractConfig {
         this.heartbeat = heartbeat;
     }
 
-    public Boolean getDefault() {
+    public Boolean isDefault() {
         return isDefault;
     }
 
