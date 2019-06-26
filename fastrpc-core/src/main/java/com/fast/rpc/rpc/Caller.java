@@ -1,5 +1,8 @@
 package com.fast.rpc.rpc;
 
+import com.fast.rpc.core.Request;
+import com.fast.rpc.core.Response;
+
 /**
  * @InterfaceName Caller
  * @Description TODO
@@ -10,4 +13,7 @@ package com.fast.rpc.rpc;
 public interface Caller<T> extends Node {
 
     Class<T> getInterface();
+
+    Response call(Request request);
+
 }

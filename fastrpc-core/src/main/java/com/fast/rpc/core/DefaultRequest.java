@@ -14,7 +14,7 @@ import java.util.Map;
  **/
 public class DefaultRequest implements Serializable, Request {
 
-    private static final long serialVersionUID = 7478520607109127572L;
+    private static final long serialVersionUID = 5685055008077796252L;
 
     private Long requestId;
     private String interfaceName;
@@ -95,7 +95,7 @@ public class DefaultRequest implements Serializable, Request {
 
     @Override
     public void setAttachment(String key, String value) {
-        if(attachments==null){
+        if (attachments == null) {
             attachments = new HashMap<>();
         }
         attachments.put(key, value);

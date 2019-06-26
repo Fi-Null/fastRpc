@@ -8,12 +8,10 @@ import java.util.Map;
 
 /**
  * @ClassName URL
- * @Description
- * /{fastRpc-framework}/interface/consumers/
+ * @Description /{fastRpc-framework}/interface/consumers/
  * /{fastRpc-framework}/interface/providers/
  * 服务提供者: [protocol]://10.141.5.49:21903/fast.rpc.example.UserService?application=mango-provider&mango=2.8.3&interface=mango.example.UserService&pid=9011&retries=0&side=provider&timestamp=1487902335567&version=1.0.0
  * 服务消费者: consumer://10.141.5.49/fast.rpc.example.UserService?application=mango-consumer&category=consumers&check=false&mango=2.8.3&interface=mango.example.UserService&pid=29465&side=consumer&timeout=120000&timestamp=1480648755499&version=1.0.0
- *
  * @Author xiangke
  * @Date 2019/6/23 23:30
  * @Version 1.0
@@ -154,7 +152,8 @@ public class URL {
         String host = null;
         int port = 0;
         String path = null;
-        Map<String, String> parameters = new HashMap<String, String>();;
+        Map<String, String> parameters = new HashMap<String, String>();
+        ;
         int i = url.indexOf("?"); // seperator between body and parameters
         if (i >= 0) {
             String[] parts = url.substring(i + 1).split("\\&");

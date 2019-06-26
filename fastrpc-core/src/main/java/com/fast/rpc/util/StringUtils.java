@@ -18,6 +18,7 @@ public class StringUtils {
     public static String getString(byte[] data) {
         return getString(data, UTF8);
     }
+
     public static String getString(byte[] data, Charset charset) {
         return new String(data, charset);
     }
@@ -57,19 +58,19 @@ public class StringUtils {
     }
 
     public static boolean equals(String str1, String str2) {
-        return str1 == null?str2 == null:str1.equals(str2);
+        return str1 == null ? str2 == null : str1.equals(str2);
     }
 
     public static boolean equalsIgnoreCase(String str1, String str2) {
-        return str1 == null?str2 == null:str1.equalsIgnoreCase(str2);
+        return str1 == null ? str2 == null : str1.equalsIgnoreCase(str2);
     }
 
     public static boolean contains(String[] arr, String searchStr) {
         if (arr == null || searchStr == null) {
             return false;
         }
-        for(String str : arr) {
-            if(searchStr.equals(str)){
+        for (String str : arr) {
+            if (searchStr.equals(str)) {
                 return true;
             }
         }
@@ -101,7 +102,7 @@ public class StringUtils {
 
         char[] newChars = new char[strLen];
         newChars[0] = newChar;
-        str.getChars(1,strLen, newChars, 1);
+        str.getChars(1, strLen, newChars, 1);
         return String.valueOf(newChars);
     }
 }

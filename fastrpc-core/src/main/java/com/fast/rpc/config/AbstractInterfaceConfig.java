@@ -4,11 +4,16 @@ package com.fast.rpc.config;
 import com.fast.rpc.common.Constants;
 import com.fast.rpc.common.URL;
 import com.fast.rpc.common.URLParam;
+import com.fast.rpc.exception.RpcFrameworkException;
 import com.fast.rpc.registry.Registry;
 import com.fast.rpc.util.NetUtils;
 import com.fast.rpc.util.StringUtils;
 
-import java.util.*;
+import java.net.InetAddress;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName AbstractInterfaceConfig
@@ -17,9 +22,9 @@ import java.util.*;
  * @Date 2019/6/23 23:13
  * @Version 1.0
  **/
-public class AbstractInterfaceConfig {
+public class AbstractInterfaceConfig extends AbstractConfig {
 
-    private static final long serialVersionUID = 3928005245888186559L;
+    private static final long serialVersionUID = -8703827954182651931L;
 
     protected String interfaceName;
     protected String group;
@@ -37,47 +42,70 @@ public class AbstractInterfaceConfig {
 
 
     protected List<URL> loadRegistryUrls() {
-        List<URL> registryList = new ArrayList<URL>();
+        List<URL> registryList = Collections.EMPTY_LIST;
 
-        if (registries != null && !registries.isEmpty()) {
-            for (RegistryConfig config : registries) {
-                String address = config.getAddress();
-                String protocol = config.getProtocol();
 
-                if (StringUtils.isBlank(address)) {
-                    address = NetUtils.LOCALHOST + Constants.HOST_PORT_SEPARATOR + Constants.DEFAULT_INT_VALUE;
-                    protocol = Constants.REGISTRY_PROTOCOL_LOCAL;
-                }
+        registries.stream().forEach(registryConfig -> {
+            String address = registryConfig.getAddress();
+            String protocol = registryConfig.getProtocol();
 
-                Map<String, String> parameters = new HashMap<>();
-                parameters.put(URLParam.path.getName(), Registry.class.getName());
-                parameters.put(URLParam.registryAddress.getName(), String.valueOf(address));
-                parameters.put(URLParam.registryProtocol.getName(), String.valueOf(protocol));
-                parameters.put(URLParam.timestamp.getName(), String.valueOf(System.currentTimeMillis()));
-                parameters.put(URLParam.protocol.getName(), protocol);
-
-                Integer connectTimeout = URLParam.registryConnectTimeout.getIntValue();
-                if (config.getConnectTimeout() != null) {
-                    connectTimeout = config.getConnectTimeout();
-                }
-                parameters.put(URLParam.registryConnectTimeout.getName(), String.valueOf(connectTimeout));
-
-                Integer sessionTimeout = URLParam.registrySessionTimeout.getIntValue();
-                if (config.getSessionTimeout() != null) {
-                    sessionTimeout = config.getSessionTimeout();
-                }
-                parameters.put(URLParam.registrySessionTimeout.getName(), String.valueOf(sessionTimeout));
-
-                String[] arr = address.split(Constants.HOST_PORT_SEPARATOR);
-                URL url = new URL(protocol, arr[0], Integer.parseInt(arr[1]), Registry.class.getName(), parameters);
-                registryList.add(url);
+            if (StringUtils.isBlank(address)) {
+                address = NetUtils.LOCALHOST + Constants.HOST_PORT_SEPARATOR + Constants.DEFAULT_INT_VALUE;
+                protocol = Constants.REGISTRY_PROTOCOL_LOCAL;
             }
-        }
+
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put(URLParam.path.getName(), Registry.class.getName());
+            parameters.put(URLParam.registryAddress.getName(), String.valueOf(address));
+            parameters.put(URLParam.registryProtocol.getName(), String.valueOf(protocol));
+            parameters.put(URLParam.timestamp.getName(), String.valueOf(System.currentTimeMillis()));
+            parameters.put(URLParam.protocol.getName(), protocol);
+
+            Integer connectTimeout = URLParam.registryConnectTimeout.getIntValue();
+            if (registryConfig.getConnectTimeout() != null) {
+                connectTimeout = registryConfig.getConnectTimeout();
+            }
+            parameters.put(URLParam.registryConnectTimeout.getName(), String.valueOf(connectTimeout));
+
+            Integer sessionTimeout = URLParam.registrySessionTimeout.getIntValue();
+            if (registryConfig.getSessionTimeout() != null) {
+                sessionTimeout = registryConfig.getSessionTimeout();
+            }
+            parameters.put(URLParam.registrySessionTimeout.getName(), String.valueOf(sessionTimeout));
+
+            String[] arr = address.split(Constants.HOST_PORT_SEPARATOR);
+            URL url = new URL(protocol, arr[0], Integer.parseInt(arr[1]), Registry.class.getName(), parameters);
+            registryList.add(url);
+
+        });
 
 
         return registryList;
     }
 
+    protected Integer getProtocolPort(ProtocolConfig protocolConfig) {
+        Integer port = protocolConfig.getPort();
+        if (port == null || port < 1) {
+            port = Constants.DEFAULT_PORT;
+        }
+        return port;
+    }
+
+    protected String getLocalHostAddress() {
+        InetAddress address = NetUtils.getLocalAddress();
+        if (address == null || StringUtils.isBlank(address.getHostAddress())) {
+            throw new RpcFrameworkException("retrieve local host address failure. Please config <mango:protocol host='...' />");
+        }
+        return address.getHostAddress();
+    }
+
+    protected String getLocalHostAddress(ProtocolConfig protocol) {
+        String hostAddress = protocol.getHost();
+        if (StringUtils.isBlank(hostAddress)) {
+            hostAddress = getLocalHostAddress();
+        }
+        return hostAddress;
+    }
 
     public String getInterfaceName() {
         return interfaceName;

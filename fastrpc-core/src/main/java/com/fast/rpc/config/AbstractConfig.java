@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 public class AbstractConfig implements Serializable {
 
-    private static final long serialVersionUID = -6047235443917923115L;
+    private static final long serialVersionUID = -3618251339903241483L;
 
     protected String id;
 
