@@ -26,33 +26,33 @@ public abstract class AbstractProtocol implements Protocol {
     }
 
     @Override
-    public <T> Exporter<T> export(Provider<T> provider, URL url) {
-        if (url == null) {
+    public <T> Exporter<T> export(Provider<T> provider, URL serviceUrl) {
+        if (serviceUrl == null) {
             throw new RpcFrameworkException(this.getClass().getSimpleName() + " export Error: url is null");
         }
 
         if (provider == null) {
-            throw new RpcFrameworkException(this.getClass().getSimpleName() + " export Error: provider is null, url=" + url);
+            throw new RpcFrameworkException(this.getClass().getSimpleName() + " export Error: provider is null, url=" + serviceUrl);
         }
 
-        String protocolKey = FrameworkUtils.getProtocolKey(url);
+        String protocolKey = FrameworkUtils.getProtocolKey(serviceUrl);
 
         synchronized (exporterMap) {
             Exporter<T> exporter = (Exporter<T>) exporterMap.get(protocolKey);
 
             if (exporter != null) {
-                throw new RpcFrameworkException(this.getClass().getSimpleName() + " export Error: service already exist, url=" + url);
+                throw new RpcFrameworkException(this.getClass().getSimpleName() + " export Error: service already exist, url=" + serviceUrl);
             }
 
-            exporter = createExporter(provider, url);
+            exporter = createExporter(provider, serviceUrl);
             exporter.init();
             exporterMap.put(protocolKey, exporter);
-            logger.info(this.getClass().getSimpleName() + " export success: url=" + url);
+            logger.info(this.getClass().getSimpleName() + " export success: url=" + serviceUrl);
             return exporter;
         }
     }
 
     protected abstract <T> Reference<T> createReference(Class<T> clz, URL url, URL serviceUrl);
 
-    protected abstract <T> Exporter<T> createExporter(Provider<T> provider, URL url);
+    protected abstract <T> Exporter<T> createExporter(Provider<T> provider, URL serviceUrl);
 }

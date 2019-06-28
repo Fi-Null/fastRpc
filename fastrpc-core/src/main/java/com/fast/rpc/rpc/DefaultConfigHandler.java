@@ -5,6 +5,8 @@ import com.fast.rpc.common.URL;
 import com.fast.rpc.common.URLParam;
 import com.fast.rpc.core.ExtensionLoader;
 import com.google.common.collect.ArrayListMultimap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -16,6 +18,8 @@ import java.util.List;
  * @Version 1.0
  **/
 public class DefaultConfigHandler implements ConfigHandler {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     @Override
     public <T> Cluster<T> buildCluster(Class<T> interfaceClass, URL refUrl, List<URL> registryUrls) {
@@ -36,13 +40,30 @@ public class DefaultConfigHandler implements ConfigHandler {
         Exporter<T> exporter = protocol.export(provider, serviceUrl);
 
         // register service
-        //register(registryUrls, serviceUrl);
+        register(registryUrls, serviceUrl);
 
         return exporter;
     }
 
+    private void register(List<URL> registryUrls, URL serviceUrl) {
+    }
+
     @Override
     public <T> void unexport(List<Exporter<T>> exporters, ArrayListMultimap<URL, URL> registryUrls) {
-
+        unRegister(registryUrls);
     }
+
+    private void unRegister(ArrayListMultimap<URL, URL> registryUrls) {
+
+        registryUrls.keySet().forEach(url -> {
+            try {
+                // RegistryFactory registryFactory = ExtensionLoader.getExtensionLoader(RegistryFactory.class).getExtension(url.getProtocol());
+                // Registry registry = registryFactory.getRegistry(url);
+                //registry.unregister(serviceUrl);
+            } catch (Exception e) {
+                logger.warn(String.format("unregister url false:%s", url), e);
+            }
+        });
+    }
+
 }

@@ -103,7 +103,19 @@ public class ServiceConfig<T> extends AbstractInterfaceConfig {
         exporters.add(configHandler.export(interfaceClass, ref, serviceUrl, registryUrls));
     }
 
+
+    public boolean isExported() {
+        return exported;
+    }
+
     protected void destroy0() throws Exception {
+        if (!isExported()) {
+            return;
+        }
+
+        ConfigHandler configHandler = ExtensionLoader.getExtensionLoader(ConfigHandler.class).getExtension(Constants.DEFAULT_VALUE);
+        configHandler.unexport(exporters, registeredUrls);
+
         exporters.clear();
         registeredUrls.clear();
     }

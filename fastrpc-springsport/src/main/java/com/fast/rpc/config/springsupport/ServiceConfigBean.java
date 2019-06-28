@@ -44,12 +44,17 @@ public class ServiceConfigBean<T> extends ServiceConfig<T> implements BeanFactor
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        logger.debug("check service interface:%s config", getInterfaceName());
 
+        checkRegistryConfig();
+        checkProtocolConfig();
     }
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-
+        if (!isExported()) {
+            export();
+        }
     }
 
     private void checkRegistryConfig() {
