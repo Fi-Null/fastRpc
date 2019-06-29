@@ -85,7 +85,7 @@ public class ServiceConfig<T> extends AbstractInterfaceConfig {
         Integer port = getProtocolPort(protocolConfig);
         String hostAddress = getLocalHostAddress(protocolConfig);
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap();
         map.put(URLParam.version.getName(), StringUtils.isNotEmpty(version) ? version : URLParam.version.getValue());
         map.put(URLParam.group.getName(), StringUtils.isNotEmpty(group) ? group : URLParam.group.getValue());
         map.put(URLParam.serialization.getName(), StringUtils.isNotEmpty(protocolConfig.getSerialization()) ? protocolConfig.getSerialization() : URLParam.serialization.getValue());
@@ -108,7 +108,7 @@ public class ServiceConfig<T> extends AbstractInterfaceConfig {
         return exported;
     }
 
-    protected void destroy0() throws Exception {
+    protected void destroy0() {
         if (!isExported()) {
             return;
         }

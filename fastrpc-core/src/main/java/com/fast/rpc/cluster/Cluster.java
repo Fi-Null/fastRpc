@@ -1,6 +1,9 @@
 package com.fast.rpc.cluster;
 
 import com.fast.rpc.rpc.Caller;
+import com.fast.rpc.rpc.Reference;
+
+import java.util.List;
 
 /**
  * @InterfaceName Cluster
@@ -10,11 +13,11 @@ import com.fast.rpc.rpc.Caller;
  * @Version 1.0
  **/
 public interface Cluster<T> extends Caller<T> {
-//    void setLoadBalance(LoadBalance<T> loadBalance);
-//
-//    void setHaStrategy(HaStrategy<T> haStrategy);
-//
-//    List<Reference<T>> getReferences();
-//
-//    LoadBalance<T> getLoadBalance();
+    void setLoadBalance(LoadBalance<T> loadBalance);
+
+    void setHaStrategy(HaStrategy<T> haStrategy);
+
+    List<Reference<T>> getReferences();
+
+    LoadBalance<T> getLoadBalance();
 }

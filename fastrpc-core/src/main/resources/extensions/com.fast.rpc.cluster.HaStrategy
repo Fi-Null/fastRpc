@@ -1,0 +1,2 @@
+failfast=com.fast.rpc.cluster.ha.FailfastHaStrategy
+failover=com.fast.rpc.cluster.ha.FailoverHaStrategy

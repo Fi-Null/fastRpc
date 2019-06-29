@@ -4,6 +4,9 @@ import com.fast.rpc.cluster.Cluster;
 import com.fast.rpc.common.URL;
 import com.fast.rpc.common.URLParam;
 import com.fast.rpc.core.ExtensionLoader;
+import com.fast.rpc.exception.RpcFrameworkException;
+import com.fast.rpc.registry.Registry;
+import com.fast.rpc.registry.RegistryFactory;
 import com.google.common.collect.ArrayListMultimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +37,7 @@ public class DefaultConfigHandler implements ConfigHandler {
     @Override
     public <T> Exporter<T> export(Class<T> interfaceClass, T ref, URL serviceUrl, List<URL> registryUrls) {
         String protocolName = serviceUrl.getParameter(URLParam.protocol.getName(), URLParam.protocol.getValue());
-        Provider<T> provider = new DefaultProvider<T>(ref, serviceUrl, interfaceClass);
+        Provider<T> provider = new DefaultProvider(ref, serviceUrl, interfaceClass);
 
         Protocol protocol = new ProtocolFilterWrapper(ExtensionLoader.getExtensionLoader(Protocol.class).getExtension(protocolName));
         Exporter<T> exporter = protocol.export(provider, serviceUrl);
@@ -46,6 +49,22 @@ public class DefaultConfigHandler implements ConfigHandler {
     }
 
     private void register(List<URL> registryUrls, URL serviceUrl) {
+        registryUrls.stream().forEach(registryUrl -> {
+            // 根据check参数的设置，register失败可能会抛异常，上层应该知晓
+            RegistryFactory registryFactory = ExtensionLoader.getExtensionLoader(RegistryFactory.class).getExtension(registryUrl.getProtocol());
+            if (registryFactory == null) {
+                throw new RpcFrameworkException("register error! Could not find extension for registry protocol:" + serviceUrl.getProtocol()
+                        + ", make sure registry module for " + registryUrl.getProtocol() + " is in classpath!");
+            }
+
+            try {
+                Registry registry = registryFactory.getRegistry(registryUrl);
+                registry.register(serviceUrl);
+            } catch (Exception e) {
+                throw new RpcFrameworkException("register error! Could not registry service:" + registryUrl.getInterfaceName()
+                        + " for " + registryUrl.getProtocol(), e);
+            }
+        });
     }
 
     @Override
@@ -54,16 +73,17 @@ public class DefaultConfigHandler implements ConfigHandler {
     }
 
     private void unRegister(ArrayListMultimap<URL, URL> registryUrls) {
-
-        registryUrls.keySet().forEach(url -> {
-            try {
-                // RegistryFactory registryFactory = ExtensionLoader.getExtensionLoader(RegistryFactory.class).getExtension(url.getProtocol());
-                // Registry registry = registryFactory.getRegistry(url);
-                //registry.unregister(serviceUrl);
-            } catch (Exception e) {
-                logger.warn(String.format("unregister url false:%s", url), e);
+        for (URL serviceUrl : registryUrls.keySet()) {
+            for (URL url : registryUrls.get(serviceUrl)) {
+                try {
+                    RegistryFactory registryFactory = ExtensionLoader.getExtensionLoader(RegistryFactory.class).getExtension(url.getProtocol());
+                    Registry registry = registryFactory.getRegistry(url);
+                    registry.unregister(serviceUrl);
+                } catch (Exception e) {
+                    logger.warn(String.format("unregister url false:%s", url), e);
+                }
             }
-        });
+        }
     }
 
 }

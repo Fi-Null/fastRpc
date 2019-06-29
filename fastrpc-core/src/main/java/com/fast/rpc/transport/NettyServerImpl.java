@@ -3,6 +3,7 @@ package com.fast.rpc.transport;
 import com.fast.rpc.common.Constants;
 import com.fast.rpc.common.URL;
 import com.fast.rpc.common.URLParam;
+import com.fast.rpc.enums.ChannelState;
 import com.fast.rpc.rpc.MessageRouter;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -54,40 +55,40 @@ public class NettyServerImpl extends AbstractServer {
         this.router = router;
         this.pool = new ThreadPoolExecutor(serviceUrl.getIntParameter(URLParam.minWorkerThread.getName(), URLParam.minWorkerThread.getIntValue()),
                 serviceUrl.getIntParameter(URLParam.maxWorkerThread.getName(), URLParam.maxWorkerThread.getIntValue()),
-                120, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
+                120, TimeUnit.SECONDS, new LinkedBlockingQueue(),
                 new DefaultThreadFactory(String.format("%s-%s", Constants.FRAMEWORK_NAME, "biz")));
     }
 
     @Override
     public synchronized boolean open() {
         if (initializing) {
-            logger.warn("NettyServer ServerChannel is initializing: url=" + url);
+            logger.warn("NettyServer ServerChannel is initializing: serviceUrl=" + serviceUrl);
             return true;
         }
 
         initializing = true;
 
         if (state.isAvailable()) {
-            logger.warn("NettyServer ServerChannel has initialized: url=" + url);
+            logger.warn("NettyServer ServerChannel has initialized: serviceUrl=" + serviceUrl);
             return true;
         }
 
         // 最大响应包限制
-        final int maxContentLength = url.getIntParameter(URLParam.maxContentLength.getName(),
+        final int maxContentLength = serviceUrl.getIntParameter(URLParam.maxContentLength.getName(),
                 URLParam.maxContentLength.getIntValue());
 
         this.serverBootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.SO_RCVBUF, url.getIntParameter(URLParam.bufferSize.getName(), URLParam.bufferSize.getIntValue()))
-                .childOption(ChannelOption.SO_SNDBUF, url.getIntParameter(URLParam.bufferSize.getName(), URLParam.bufferSize.getIntValue()))
+                .childOption(ChannelOption.SO_RCVBUF, serviceUrl.getIntParameter(URLParam.bufferSize.getName(), URLParam.bufferSize.getIntValue()))
+                .childOption(ChannelOption.SO_SNDBUF, serviceUrl.getIntParameter(URLParam.bufferSize.getName(), URLParam.bufferSize.getIntValue()))
                 .handler(new LoggingHandler(LogLevel.INFO))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new NettyDecoder(codec, url, maxContentLength, Constants.HEADER_SIZE, 4),
-                                new NettyEncoder(codec, url), //
-                                new NettyServerHandler());
+                    protected void initChannel(SocketChannel ch) {
+                        ch.pipeline().addLast(new NettyDecoder(codec, serviceUrl, maxContentLength, Constants.HEADER_SIZE, 4),
+                                new NettyEncoder(codec, serviceUrl), //
+                                new NettyServerHandler(pool, router));
                     }
                 });
 
@@ -96,26 +97,39 @@ public class NettyServerImpl extends AbstractServer {
 
     @Override
     public boolean isAvailable() {
-        return false;
+        return state.isAvailable();
     }
 
     @Override
     public boolean isClosed() {
-        return false;
+        return state.isClosed();
     }
 
     @Override
     public URL getUrl() {
-        return null;
+        return serviceUrl;
     }
 
     @Override
     public void close() {
-
+        close(0);
     }
 
     @Override
     public void close(int timeout) {
+        if (state.isClosed()) {
+            logger.info("NettyServer close fail: already close, serviceUrl={}", serviceUrl.getUri());
+            return;
+        }
 
+        try {
+            this.bossGroup.shutdownGracefully();
+            this.workerGroup.shutdownGracefully();
+            this.pool.shutdown();
+
+            state = ChannelState.CLOSED;
+        } catch (Exception e) {
+            logger.error("NettyServer close Error: serviceUrl=" + serviceUrl.getUri(), e);
+        }
     }
 }

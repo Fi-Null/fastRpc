@@ -43,7 +43,7 @@ public class ServiceConfigBean<T> extends ServiceConfig<T> implements BeanFactor
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         logger.debug("check service interface:%s config", getInterfaceName());
 
         checkRegistryConfig();

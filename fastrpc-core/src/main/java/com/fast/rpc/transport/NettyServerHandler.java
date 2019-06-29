@@ -51,7 +51,9 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<DefaultReque
     }
 
 
-    /**处理客户端请求**/
+    /**
+     * 处理客户端请求
+     **/
     private void processRpcRequest(final ChannelHandlerContext context, final DefaultRequest request) {
         final long processStartTime = System.currentTimeMillis();
         try {

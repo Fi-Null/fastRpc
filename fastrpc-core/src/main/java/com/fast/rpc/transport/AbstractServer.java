@@ -25,7 +25,8 @@ public abstract class AbstractServer implements NettyServer {
 
     protected InetSocketAddress remoteAddress;
 
-    protected URL url;
+    protected URL serviceUrl;
+
     protected Codec codec;
 
     protected volatile ChannelState state = ChannelState.NEW;
@@ -33,9 +34,9 @@ public abstract class AbstractServer implements NettyServer {
     public AbstractServer() {
     }
 
-    public AbstractServer(URL url) {
-        this.url = url;
-        this.codec = ExtensionLoader.getExtensionLoader(Codec.class).getExtension(url.getParameter(URLParam.codec.getName(), URLParam.codec.getValue()));
+    public AbstractServer(URL serviceUrl) {
+        this.serviceUrl = serviceUrl;
+        this.codec = ExtensionLoader.getExtensionLoader(Codec.class).getExtension(serviceUrl.getParameter(URLParam.codec.getName(), URLParam.codec.getValue()));
     }
 
     @Override

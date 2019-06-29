@@ -11,6 +11,8 @@
     <modules>
         <module>fastRpc-core</module>
         <module>fastrpc-springsport</module>
+        <module>fastrpc-serializer</module>
+        <module>fastrpc-registry</module>
     </modules>
 
     <properties>

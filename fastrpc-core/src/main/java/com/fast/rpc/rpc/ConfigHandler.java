@@ -15,8 +15,9 @@ import java.util.List;
  * @Date 2019/6/26 23:09
  * @Version 1.0
  **/
-@SPI(Constants.DEFAULT_VALUE)
+@SPI(value = Constants.DEFAULT_VALUE)
 public interface ConfigHandler {
+
     <T> Cluster<T> buildCluster(Class<T> interfaceClass, URL refUrl, List<URL> registryUrls);
 
     /**
