@@ -27,8 +27,8 @@ public class ProtocolFilterWrapper implements Protocol {
     }
 
     @Override
-    public <T> Reference<T> refer(Class<T> clz, URL url, URL serviceUrl) {
-        return buildReferenceChain(protocol.refer(clz, url, serviceUrl), url);
+    public <T> Reference<T> refer(Class<T> clz, URL referenceURL, URL url) {
+        return buildReferenceChain(protocol.refer(clz, referenceURL, url), url);
     }
 
     @Override

@@ -14,7 +14,7 @@ import com.fast.rpc.common.URL;
 @SPI(value = Constants.FRAMEWORK_NAME)
 public interface Protocol {
 
-    <T> Reference<T> refer(Class<T> clz, URL url, URL serviceUrl);
+    <T> Reference<T> refer(Class<T> clz, URL referenceURL, URL url);
 
     <T> Exporter<T> export(Provider<T> provider, URL serviceUrl);
 

@@ -1,10 +1,15 @@
 package com.fast.rpc.rpc;
 
 import com.fast.rpc.cluster.Cluster;
+import com.fast.rpc.cluster.DefaultCluster;
+import com.fast.rpc.cluster.HaStrategy;
+import com.fast.rpc.cluster.LoadBalance;
 import com.fast.rpc.common.URL;
 import com.fast.rpc.common.URLParam;
 import com.fast.rpc.core.ExtensionLoader;
 import com.fast.rpc.exception.RpcFrameworkException;
+import com.fast.rpc.proxy.ProxyFactory;
+import com.fast.rpc.proxy.ReferenceInvocationHandler;
 import com.fast.rpc.registry.Registry;
 import com.fast.rpc.registry.RegistryFactory;
 import com.google.common.collect.ArrayListMultimap;
@@ -26,12 +31,22 @@ public class DefaultConfigHandler implements ConfigHandler {
 
     @Override
     public <T> Cluster<T> buildCluster(Class<T> interfaceClass, URL refUrl, List<URL> registryUrls) {
-        return null;
+        DefaultCluster<T> cluster = new DefaultCluster(interfaceClass, refUrl, registryUrls);
+        String loadBalanceName = refUrl.getParameter(URLParam.loadBalance.getName(), URLParam.loadBalance.getValue());
+        String haStrategyName = refUrl.getParameter(URLParam.haStrategy.getName(), URLParam.haStrategy.getValue());
+        LoadBalance<T> loadBalance = ExtensionLoader.getExtensionLoader(LoadBalance.class).getExtension(loadBalanceName);
+        HaStrategy<T> ha = ExtensionLoader.getExtensionLoader(HaStrategy.class).getExtension(haStrategyName);
+        cluster.setLoadBalance(loadBalance);
+        cluster.setHaStrategy(ha);
+
+        cluster.init();
+        return cluster;
     }
 
     @Override
     public <T> T refer(Class<T> interfaceClass, List<Cluster<T>> cluster, String proxyType) {
-        return null;
+        ProxyFactory proxyFactory = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getExtension(proxyType);
+        return proxyFactory.getProxy(interfaceClass, new ReferenceInvocationHandler<>(interfaceClass, cluster));
     }
 
     @Override

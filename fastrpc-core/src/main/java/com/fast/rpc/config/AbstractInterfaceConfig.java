@@ -163,10 +163,6 @@ public class AbstractInterfaceConfig extends AbstractConfig {
         this.registries = registries;
     }
 
-    public Boolean getCheck() {
-        return check;
-    }
-
     public void setCheck(Boolean check) {
         this.check = check;
     }
@@ -179,5 +175,8 @@ public class AbstractInterfaceConfig extends AbstractConfig {
         this.registries = Collections.singletonList(registry);
     }
 
+    public Boolean isCheck() {
+        return check;
+    }
 
 }

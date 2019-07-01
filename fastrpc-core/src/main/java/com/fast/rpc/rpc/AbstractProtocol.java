@@ -21,8 +21,18 @@ public abstract class AbstractProtocol implements Protocol {
     protected ConcurrentHashMap<String, Exporter<?>> exporterMap = new ConcurrentHashMap<>();
 
     @Override
-    public <T> Reference<T> refer(Class<T> clz, URL url, URL serviceUrl) {
-        return null;
+    public <T> Reference<T> refer(Class<T> clz, URL referenceURL, URL url) {
+        if (referenceURL == null) {
+            throw new RpcFrameworkException(this.getClass().getSimpleName() + " refer Error: url is null");
+        }
+        if (clz == null) {
+            throw new RpcFrameworkException(this.getClass().getSimpleName() + " refer Error: class is null, url=" + url);
+        }
+        Reference<T> reference = createReference(clz, referenceURL, url);
+        reference.init();
+
+        logger.info(this.getClass().getSimpleName() + " refer service:{} success url:{}", clz.getName(), url);
+        return reference;
     }
 
     @Override

@@ -13,6 +13,7 @@
         <module>fastrpc-springsport</module>
         <module>fastrpc-serializer</module>
         <module>fastrpc-registry</module>
+        <module>fastrpc-demo</module>
     </modules>
 
     <properties>
