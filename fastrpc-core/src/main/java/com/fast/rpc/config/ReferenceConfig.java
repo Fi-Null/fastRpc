@@ -77,8 +77,8 @@ public class ReferenceConfig<T> extends AbstractInterfaceConfig {
             Map<String, String> map = new HashMap<>();
             map.put(URLParam.serialization.getName(),
                     StringUtils.isNotEmpty(protocol.getSerialization())
-                    ? protocol.getSerialization()
-                    : URLParam.serialization.getValue());
+                            ? protocol.getSerialization()
+                            : URLParam.serialization.getValue());
             map.put(URLParam.version.getName(),
                     StringUtils.isNotEmpty(version)
                             ? version

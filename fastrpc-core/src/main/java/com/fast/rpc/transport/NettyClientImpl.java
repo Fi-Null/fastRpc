@@ -85,8 +85,7 @@ public class NettyClientImpl extends AbstractClient {
                 .option(ChannelOption.SO_SNDBUF, url.getIntParameter(URLParam.bufferSize.getName(), URLParam.bufferSize.getIntValue()))
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    public void initChannel(SocketChannel ch)
-                            throws Exception {
+                    public void initChannel(SocketChannel ch) {
                         ch.pipeline().addLast(new NettyDecoder(codec, url, maxContentLength, Constants.HEADER_SIZE, 4), //
                                 new NettyEncoder(codec, url), //
                                 new NettyClientHandler());
@@ -127,18 +126,15 @@ public class NettyClientImpl extends AbstractClient {
             final ResponseFuture<Response> rpcFuture = new DefaultResponseFuture<>(timeout);
             this.responseFutureMap.put(request.getRequestId(), rpcFuture);
             //写数据
-            channel.writeAndFlush(request).addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
+            channel.writeAndFlush(request).addListener((ChannelFutureListener) future -> {
 
-                    if (future.isSuccess()) {
-                        logger.info("send success, request id:{}", request.getRequestId());
+                if (future.isSuccess()) {
+                    logger.info("send success, request id:{}", request.getRequestId());
 
-                    } else {
-                        logger.info("send failure, request id:{}", request.getRequestId());
-                        responseFutureMap.remove(request.getRequestId());
-                        rpcFuture.setFailure(future.cause());
-                    }
+                } else {
+                    logger.info("send failure, request id:{}", request.getRequestId());
+                    responseFutureMap.remove(request.getRequestId());
+                    rpcFuture.setFailure(future.cause());
                 }
             });
             return rpcFuture.get();
@@ -216,8 +212,7 @@ public class NettyClientImpl extends AbstractClient {
         private Logger logger = LoggerFactory.getLogger(getClass());
 
         @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg)
-                throws Exception {
+        public void channelRead(ChannelHandlerContext ctx, Object msg) {
 
             logger.info("client read msg:{}, ", msg);
             if (msg instanceof Response) {

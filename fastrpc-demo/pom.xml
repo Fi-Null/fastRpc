@@ -10,6 +10,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fastrpc-demo</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>fastrpc-demo-api</module>
+        <module>fastrpc-demo-server</module>
+        <module>fastrpc-demo-client</module>
+    </modules>
 
     <dependencies>
         <!-- Spring -->

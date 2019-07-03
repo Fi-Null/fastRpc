@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:fastrpc="http://code.fastrpc.com/schema/fastrpc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+
+
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://code.fastrpc.com/schema/fastrpc http://code.fastrpc.com/schema/fastrpc/fastrpc.xsd">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="com.fastrpc.demo"/>
+
+    <context:property-placeholder location="classpath:config.properties" />
+
+    <fastrpc:protocol name="mango" port="${protocol.port}" />
+
+    <fastrpc:registry protocol="zookeeper" address="${registry.address}" />
+
+    <!--export services -->
+    <fastrpc:service interface="mango.demo.service.DemoService" ref="demoService" group="group1" version="1.0.0" />
+    <fastrpc:service interface="mango.demo.service.UserService" ref="userService" version="1.0.0" />
+    <fastrpc:service interface="mango.demo.service.FooService" ref="fooService"/>
+
+    <bean id="fooService" class="com.fastrpc.demo.service.impl.FooServiceImpl" />
+
+</beans>

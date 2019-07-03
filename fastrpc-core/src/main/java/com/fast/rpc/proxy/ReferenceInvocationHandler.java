@@ -74,7 +74,7 @@ public class ReferenceInvocationHandler<T> implements InvocationHandler {
                     } else {
                         String msg = t == null ? "biz exception cause is null"
                                 : ("biz exception cause is throwable error:" + t.getClass()
-                                        + ", errmsg:" + t.getMessage());
+                                + ", errmsg:" + t.getMessage());
                         throw new RpcServiceException(msg);
                     }
                 } else if (!throwException) {

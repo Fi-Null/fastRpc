@@ -15,7 +15,7 @@ import java.io.IOException;
  **/
 @SPI(Constants.FRAMEWORK_NAME)
 public interface Codec {
-    
+
     byte[] encode(URL url, Object message) throws IOException;
 
     Object decode(URL url, byte messageType, byte[] data) throws IOException;

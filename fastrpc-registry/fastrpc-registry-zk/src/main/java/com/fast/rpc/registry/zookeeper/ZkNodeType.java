@@ -13,7 +13,7 @@ public enum ZkNodeType {
 
     private String value;
 
-    ZkNodeType(String value){
+    ZkNodeType(String value) {
         this.value = value;
     }
 

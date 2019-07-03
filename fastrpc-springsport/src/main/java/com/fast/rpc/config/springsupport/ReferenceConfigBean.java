@@ -37,6 +37,7 @@ public class ReferenceConfigBean<T> extends ReferenceConfig<T> implements
     public void destroy() throws Exception {
         super.destroy0();
     }
+
     @Override
     public T getObject() {
         return get();
@@ -53,24 +54,24 @@ public class ReferenceConfigBean<T> extends ReferenceConfig<T> implements
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
 
         logger.debug("check reference interface:%s config", getInterfaceName());
         //检查依赖的配置
         checkProtocolConfig();
         checkRegistryConfig();
 
-        if(StringUtils.isEmpty(getGroup())) {
+        if (StringUtils.isEmpty(getGroup())) {
             setGroup(URLParam.group.getValue());
         }
-        if(StringUtils.isEmpty(getVersion())) {
+        if (StringUtils.isEmpty(getVersion())) {
             setVersion(URLParam.version.getValue());
         }
 
-        if(getTimeout()==null) {
+        if (getTimeout() == null) {
             setTimeout(URLParam.requestTimeout.getIntValue());
         }
-        if(getRetries()==null) {
+        if (getRetries() == null) {
             setRetries(URLParam.retries.getIntValue());
         }
     }
